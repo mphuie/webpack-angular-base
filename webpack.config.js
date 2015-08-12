@@ -6,18 +6,21 @@ var path = require('path');
 var angularPath = path.resolve(__dirname, 'app/lib/angular.min.js');
 var angularUiRouterPath = path.resolve(__dirname, 'app/lib/angular-ui-router.min.js');
 
-var PATHS = {
-  app: __dirname + '/app',
-};
+var appPath = path.resolve(__dirname, 'app');
+var buildPath = path.resolve(__dirname, 'public', 'build')
 
 module.exports = {
-  context: PATHS.app,
+  context: __dirname,
   entry: {
-    app: ['webpack/hot/dev-server', './index.coffee']
+    app: [
+      'webpack/hot/dev-server', 
+      path.resolve(appPath, 'index.coffee')
+    ]
   },
   output: {
-    path: PATHS.app,
-    filename: 'bundle.js'
+    path: buildPath,
+    filename: 'bundle.js',
+    publicPath: 'http://localhost:4000/build/'
   },
   module: {
     loaders: [
@@ -30,6 +33,8 @@ module.exports = {
   resolve: {
     extensions: ['', '.js', '.json', '.coffee'],
     alias: { 'angular': angularPath, 'ui-router': angularUiRouterPath }
-
-  }
+  },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ]
 };
