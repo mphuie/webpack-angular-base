@@ -7,5 +7,5 @@ Basic (opinionated?) Angular webpack app layout (Coffeescript/Jade)
 
 ##Usage
 
-  npm install
-  npm start
+    npm install
+    npm start
