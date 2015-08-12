@@ -25,4 +25,4 @@ server = new WebpackDevServer webpack(config),
 server.listen 4000, '0.0.0.0', (err) ->
   if err
     console.log err
-  console.log 'Listening on 4000...'
+  console.log 'Webpack dev server listening on 4000...'
