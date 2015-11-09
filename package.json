@@ -20,6 +20,8 @@
   },
   "dependencies": {
     "body-parser": "^1.13.3",
-    "express": "^4.13.3"
+    "express": "^4.13.3",
+    "express-http-proxy": "^0.6.0",
+    "http-proxy-middleware": "^0.8.1"
   }
 }

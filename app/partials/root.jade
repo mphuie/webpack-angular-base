@@ -1,5 +1,35 @@
-h1 This is the root view.
+h1 Openstack API test
+
+form(ng-submit="login()")
+  .form-group
+    input(type="text", placeholder="Openstack Username", ng-model="username").form-control
+  .form-group
+    input(type="password", placeholder="Openstack Password", ng-model="password").form-control
+
+  .form-group
+    select(ng-model="selectedTenant", ng-options="tenant for tenant in tenants").form-control
+  button.btn.btn-success Login
+
+pre {{ accessToken }}
+
+a(ui-sref="provision") Provision
+
 
 tabset
-	tab(heading="This is tab one")
-	tab(heading="This is tab two!!")
+  tab(heading="Servers", ng-click="loadServerList()")
+    h3 Servers
+
+    table.table
+      tbody
+        tr(ng-repeat="server in servers")
+          td {{ server.name }}
+  tab(heading="Images", ng-click="loadImageList()")
+    h3 Images
+
+    table.table
+      tbody
+        tr(ng-repeat="image in images")
+          td {{ image.name }}
+          td {{ image.status }}
+          td {{ image.id }}
+

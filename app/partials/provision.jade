@@ -1,0 +1,44 @@
+h1 Provision a new host
+
+//- button.btn.btn-lg.btn-success(ng-click="setWindows()")
+//- 	i.fa.fa-windows
+//- 	= ' '
+//- 	| sandbox online / TAS 
+
+form
+	.form-group
+		label Name
+		input.form-control(
+			type="text"
+			ng-model="newServer.server.name"
+			placeholder="Name"
+		)
+	.form-group
+		label Tenant
+		select(ng-change="loadTenantResources()", ng-model="selectedTenant", ng-options="tenant as tenant.name for tenant in tenants").form-control
+	.form-group(ng-show="selectedTenant")
+		label Image
+		select(ng-model="newServer.server.imageRef", ng-options="image.links[0].href as image.name for image in images").form-control
+	.form-group(ng-show="selectedTenant")
+		label Flavor
+		select(ng-model="newServer.server.flavorRef", ng-options="f.links[0].href as f.name for f in flavors").form-control
+	.form-group(ng-show="selectedTenant")
+		label Networks
+		.checkbox(ng-repeat="n in networks")
+			label
+				input(type="checkbox", name="selectedNetworks[]", ng-model="n.selected")
+				| {{ n.label }}
+	.form-group(ng-show="selectedTenant")
+		label Security Groups
+		
+		.checkbox(ng-repeat="sg in securityGroups")
+			label
+				input(type="checkbox", name="selectedSecurityGroups[]", ng-model="sg.selected")
+				| {{ sg.name }} ({{ sg.description }})
+	
+	.form-group(ng-show="selectedTenant")
+		label User data
+		
+		
+
+button(ng-click="createServer()").btn.btn-success Create Server

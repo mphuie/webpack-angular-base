@@ -1,0 +1,19 @@
+h1 Openstack v2
+
+form(ng-submit="login()")
+  .form-group
+    input(type="text", placeholder="Openstack Username", ng-model="username").form-control
+  .form-group
+    input(type="password", placeholder="Openstack Password", ng-model="password").form-control
+  .form-group
+    select(ng-model="selectedTenant", ng-options="t for t in tenants").form-control
+  button.btn.btn-success Login
+
+table.table.table-striped
+  thead
+
+  tbody
+    tr(ng-repeat="service in auth.access.serviceCatalog")
+      td {{ service.name }}
+      td {{ service.type }}
+      td {{ service.endpoints[0].adminURL }}
