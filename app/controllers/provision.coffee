@@ -1,4 +1,6 @@
-module.exports = ($scope, $http, $rootScope) ->
+module.exports = ($scope, $http, $rootScope, toaster) ->
+
+
 
   $scope.newServer =
     server: {
@@ -10,10 +12,10 @@ module.exports = ($scope, $http, $rootScope) ->
       source_type: 'image'
     }
 
-  $scope.setWindows = ->
-    $scope.newServer.server.image = '68fbafa1-106d-4195-8e46-c5baaa90487b'
-    $scope.newServer.server.flavor = 'm1.medium'
-    $scope.newServer.server.securityGroup = '3e03d215-2b9a-41ae-ac64-9b7787a3f45e'
+  $http
+    .get '/presets'
+    .success (data) ->
+      $scope.presets = data
 
   $scope.loadTenantResources = ->
     $http
@@ -42,6 +44,49 @@ module.exports = ($scope, $http, $rootScope) ->
       $scope.tenants = data.tenants
 
   $scope.createServer = ->
+    if not $scope.selectedPreset
+      console.log 'creating server from manual options'
+      networks = _.chain $scope.networks
+                  .where { selected: true }
+                  .pluck 'id'
+                  .map (e) ->
+                    { uuid: e }
+                  .value()
+
+      securityGroups = _.chain $scope.securityGroups
+                        .where { selected: true }
+                        .map (e) ->
+                          { name: e.name}
+                        .value()
+
+      $scope.newServer.server.networks = networks
+      $scope.newServer.server.security_groups = securityGroups
+      $scope.newServer.server.user_data = btoa $scope.userdata
+    else
+      console.log 'creating server from preset!'
+
+    $scope.newServer.server.metadata = { name: $scope.newServer.server.name }
+
+    $http
+      .post "/servers/#{$scope.selectedTenant.id}", $scope.newServer
+      .success (data) ->
+        toaster.pop 'success', 'New server', 'GOod!'
+        $scope.newServerDetails = data
+      .error (data) ->
+        toaster.pop 'error', 'New server', 'Your preset config was saved!'
+        console.log data
+
+  $scope.selectPreset = ->
+    name = $scope.newServer.server.name
+    $scope.newServer = $scope.selectedPreset.payload
+    $scope.newServer.server.name = name
+    console.log $scope.newServer
+    $scope.selectedTenant = { id: $scope.selectedPreset.tenantId }
+
+
+  $scope.addPreset = ->
+
+    console.log 'creating server from manual options!'
     networks = _.chain $scope.networks
                 .where { selected: true }
                 .pluck 'id'
@@ -55,12 +100,11 @@ module.exports = ($scope, $http, $rootScope) ->
                         { name: e.name}
                       .value()
 
-
     $scope.newServer.server.networks = networks
     $scope.newServer.server.security_groups = securityGroups
-
-    console.log $scope.newServer
-    console.log $scope.selectedTenant
+    $scope.newServer.server.user_data = btoa $scope.userdata
 
     $http
-      .post "/servers/#{$scope.selectedTenant.id}", $scope.newServer
+      .post '/presets', { name: $scope.newPresetName, tenantId: $scope.selectedTenant.id, payload: $scope.newServer }
+      .success ->
+        toaster.pop 'success', 'New preset', 'Your preset config was saved!'

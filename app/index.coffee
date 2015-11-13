@@ -1,15 +1,17 @@
 require 'angular'
 require 'ui-router'
 require 'ui-bootstrap'
+require 'toaster'
+require 'angularAnimate'
 
-app = angular.module 'app', ['ui.router', 'ui.bootstrap']
+app = angular.module 'app', ['ui.router', 'ui.bootstrap', 'toaster', 'ngAnimate']
 
 routes = require './routes'
 
 app.config routes
 
 app.factory 'xsfrToken', ['$rootScope', ($rootScope) ->
-	sessionInjector = 
+	sessionInjector =
 		request: (config) ->
 			if 'accessToken' of $rootScope
 				console.log $rootScope.accessToken
@@ -17,7 +19,7 @@ app.factory 'xsfrToken', ['$rootScope', ($rootScope) ->
 			else
 				console.log 'no auth token defined!!!'
 			config
-	
+
 	sessionInjector
 ]
 

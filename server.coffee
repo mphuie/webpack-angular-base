@@ -6,6 +6,12 @@ path = require 'path'
 bodyparser = require 'body-parser'
 proxy = require 'express-http-proxy'
 request = require 'request'
+Nedb = require 'nedb'
+dotenv = require 'dotenv'
+
+dotenv.load();
+
+db = new Nedb({ filename: 'openstack.nedb', autoload: true })
 
 app = express()
 appPath = path.resolve __dirname, 'public'
@@ -30,14 +36,33 @@ server.listen 4000, '0.0.0.0', (err) ->
     console.log err
   console.log 'Webpack dev server listening on 4000...'
 
+app.get '/presets', (req, res) ->
+  db.find {}, (err, docs) ->
+    if not err
+      res.json docs
+    else
+      res.json { response: 'there was a problem getting all presets' }
 
+app.post '/presets', (req, res) ->
+  db.insert req.body, (err, newDoc) ->
+    if not err
+      res.json newDoc
+    else
+      res.json { response: 'there was a problem inserting!'}
+
+app.delete '/presets', (req, res) ->
+  db.remove {}, { multi: true }, (err, numRemoved) ->
+    if not err
+      res.json { response: "removed #{numRemoved} presets" }
+    else
+      res.json { response: 'there was a problem removing all presets!'}
 app.get '/tenants', (req, res) ->
   auth_data = {
     auth: {
       tenantName: 'Sandbox_Online'
       passwordCredentials: {
-        username: 'mhuie'
-        password: 'Sh0ryuk3n'
+        username: process.env.OPENSTACK_USER
+        password: process.env.OPENSTACK_PASS
       }
     }
   }
@@ -68,8 +93,8 @@ app.get '/images/:tenantName', (req, res) ->
     auth: {
       tenantName: req.params.tenantName
       passwordCredentials: {
-        username: 'mhuie'
-        password: 'Sh0ryuk3n'
+        username: process.env.OPENSTACK_USER
+        password: process.env.OPENSTACK_PASS
       }
     }
   }
@@ -100,8 +125,8 @@ app.get '/flavors/:tenantName', (req, res) ->
     auth: {
       tenantName: req.params.tenantName
       passwordCredentials: {
-        username: 'mhuie'
-        password: 'Sh0ryuk3n'
+        username: process.env.OPENSTACK_USER
+        password: process.env.OPENSTACK_PASS
       }
     }
   }
@@ -132,8 +157,8 @@ app.get '/networks/:tenantName', (req, res) ->
     auth: {
       tenantName: req.params.tenantName
       passwordCredentials: {
-        username: 'mhuie'
-        password: 'Sh0ryuk3n'
+        username: process.env.OPENSTACK_USER
+        password: process.env.OPENSTACK_PASS
       }
     }
   }
@@ -165,8 +190,8 @@ app.get '/security-groups/:tenantName', (req, res) ->
     auth: {
       tenantName: req.params.tenantName
       passwordCredentials: {
-        username: 'mhuie'
-        password: 'Sh0ryuk3n'
+        username: process.env.OPENSTACK_USER
+        password: process.env.OPENSTACK_PASS
       }
     }
   }
@@ -199,8 +224,8 @@ app.post '/servers/:tenantId', (req, res) ->
     auth: {
       tenantName: 'Sandbox_Online'
       passwordCredentials: {
-        username: 'mhuie'
-        password: 'Sh0ryuk3n'
+        username: process.env.OPENSTACK_USER
+        password: process.env.OPENSTACK_PASS
       }
     }
   }
@@ -213,7 +238,6 @@ app.post '/servers/:tenantId', (req, res) ->
 
   request options, (e, r, b) ->
     authToken = b.access.token.id
-    console.log authToken
     options = {
       url: "http://10.3.14.10:8774/v2/#{req.params.tenantId}/servers"
       method: 'POST'
